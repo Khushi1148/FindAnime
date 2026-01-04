@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import Search from "./components/search"
 import Spinner from "./components/Spinner"
+import AnimeCard from "./components/AnimeCard"
 
 
 const API_BASE_URL = 'https://api.jikan.moe/v4'
@@ -12,12 +13,12 @@ const App = () => {
   const [loading, setLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
 
-  const fetchAnime = async() => {
+  const fetchAnime = async(query = '') => {
     setLoading(true)
     setErrorMessage(false)
 
     try{
-      const endpoint = `${API_BASE_URL}/top/anime`
+      const endpoint = query? `${API_BASE_URL}/anime?q=${encodeURIComponent(query)}` : `${API_BASE_URL}/top/anime`
 
       const response = await fetch(endpoint)
       if(!response.ok){
@@ -32,7 +33,7 @@ const App = () => {
       }
 
       setAnimeList(json.data || [])
-      
+      console.log(json)
 
 
     }catch(error){
@@ -44,8 +45,8 @@ const App = () => {
   }
 
   useEffect(()=>{
-    fetchAnime()
-  }, [])
+    fetchAnime(searchTerm)
+  }, [searchTerm])
   return (
     <main>
       
@@ -56,7 +57,8 @@ const App = () => {
         </header>
 
         <section className="all-animes">
-          <h2>All Anime</h2>
+          <h2 className="mt-6">All Anime</h2>
+
           {loading ? (
             <Spinner />
           ) : errorMessage ? (
@@ -64,11 +66,11 @@ const App = () => {
           ): (
             <ul>
               {animeList.map((anime)=>(
-                <p key={anime.mal_id} className="text-white">{anime.title_english || anime.title
-}</p>
+                <AnimeCard key={anime.mal_id} anime={anime}/>
               ))}
             </ul>
           )}
+
         </section>
         
         
