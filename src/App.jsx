@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import Search from "./components/search"
 import Spinner from "./components/Spinner"
 import AnimeCard from "./components/AnimeCard"
+import {useDebounce} from 'react-use'
 
 
 const API_BASE_URL = 'https://api.jikan.moe/v4'
@@ -12,6 +13,12 @@ const App = () => {
   const [animeList, setAnimeList] = useState([])
   const [loading, setLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('')
+
+  // Debounce the search term to prevent making too many API requests
+  // by waiting for the user to stop typing for 500ms (0.5s)
+  useDebounce(()=> setDebouncedSearchTerm(searchTerm), 500, [searchTerm])
+
 
   const fetchAnime = async(query = '') => {
     setLoading(true)
@@ -45,8 +52,8 @@ const App = () => {
   }
 
   useEffect(()=>{
-    fetchAnime(searchTerm)
-  }, [searchTerm])
+    fetchAnime(debouncedSearchTerm)
+  }, [debouncedSearchTerm])
   return (
     <main>
       
